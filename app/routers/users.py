@@ -1,5 +1,3 @@
-import os
-import uuid
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from fastapi_cache.decorator import cache
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +8,7 @@ from app.core.constants import ALLOWED_IMAGE_TYPES, CACHE_TTL_ACCOUNT
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.user import UserResponse, UserUpdate
+from app.services.file_service import save_avatar
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -38,6 +37,17 @@ async def update_me(
     if payload.bio is not None:
         current_user.bio = payload.bio
 
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user
+
+@router.post("/me/avatar", response_model=UserResponse)
+async def upload_avatar(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    current_user.avatar_url = await save_avatar(file)
     await db.commit()
     await db.refresh(current_user)
     return current_user
