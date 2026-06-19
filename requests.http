@@ -1,5 +1,8 @@
+@baseUrl = http://localhost:8000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NjJkZjNjZC00MTU4LTQ0MjUtYjQzYy1jNDAwOGM0YWRlNzgiLCJleHAiOjE3ODE4Mzc2MDh9.k3ZDWwsAt7heTzix_OZnyi7dKL_nVVd66XuIu7x_dak
+
 ### Register
-POST http://localhost:8000/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -9,7 +12,7 @@ Content-Type: application/json
 }
 
 ### Login
-POST http://localhost:8000/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -17,6 +20,15 @@ Content-Type: application/json
   "password": "password123"
 }
 
-### Get my profile (replace token)
-GET http://localhost:8000/auth/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NjJkZjNjZC00MTU4LTQ0MjUtYjQzYy1jNDAwOGM0YWRlNzgiLCJleHAiOjE3ODE4MzU3MjJ9.cIt7kdDxvtGTcUhzEkIFua-2kRk2OPrGBZ-mDr8dcNU
+### Get my profile
+GET http://localhost:8000/users/me
+Authorization: Bearer {{token}}
+
+### Update profile
+PATCH http://localhost:8000/users/me
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "bio": "Hello I am a dev"
+}

@@ -21,3 +21,7 @@ class UserResponse(BaseModel):
     # allows reading from sqlalchemy models directly
     # ✅ UserResponse.model_validate(user)
     model_config = {"from_attributes": True}
+
+class UserUpdate(BaseModel):
+    username: str | None = None
+    bio: str | None = None

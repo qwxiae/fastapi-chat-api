@@ -47,9 +47,6 @@ async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)):
 
     return TokenResponse(access_token=create_access_token(user.id))
 
-@router.get("/me", response_model=UserResponse)
-async def me(user: User = Depends(get_current_user)):
-    return user
 
 @router.post("/logout")
 async def logout(current_user: User = Depends(get_current_user)):
