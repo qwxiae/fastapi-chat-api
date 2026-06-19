@@ -16,3 +16,5 @@ class RoomMember(Base):
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"))
     room_id: Mapped[str] = mapped_column(String(36), ForeignKey("rooms.id"))
     role: Mapped[RoomRole] = mapped_column(Enum(RoomRole), default=RoomRole.member, nullable=False)
+    joined_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    
