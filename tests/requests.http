@@ -1,0 +1,102 @@
+@baseUrl = http://localhost:8000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NjJkZjNjZC00MTU4LTQ0MjUtYjQzYy1jNDAwOGM0YWRlNzgiLCJleHAiOjE3ODE4OTk3MTJ9.dZU3FbFTlMxAtYzTn0cgH1WRY_sg5qCfZ3TESSNsR4M
+@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZDVjM2YzOC0zN2Y1LTQwMjUtYWUyMy1hYzAyNWQwMTExMWIiLCJleHAiOjE3ODE4OTk5Nzl9.fwLcPVdD85aFkKxo0Tijg4xJgMvJpJiSSBojwTEIUOs
+@user2 = fd5c3f38-37f5-4025-ae23-ac025d01111b
+@room = 494ffe03-a371-45af-9be3-995bd29b81f7
+
+### ======= Auth ===========================================
+### Register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Register2
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser2",
+  "email": "test2@example.com",
+  "password": "password123"
+}
+
+### Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Login2
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test2@example.com",
+  "password": "password123"
+}
+
+### ======= Users ==========================================
+### Get my profile
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+### Update profile
+PATCH {{baseUrl}}/users/me
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "bio": "Hello I am a dev"
+}
+### ======= Rooms ==========================================
+### Create a room
+POST {{baseUrl}}/rooms
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "general",
+  "description": "General chat",
+  "is_private": false
+}
+
+### List all public rooms
+GET {{ baseUrl }}/rooms
+Authorization: Bearer {{token}}
+
+### Get a specific room
+GET {{ baseUrl }}/rooms/{{room}}
+Authorization: Bearer {{token}}
+
+### Update a room
+PATCH {{ baseUrl }}/rooms/{{room}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "description": "Updated description"
+}
+
+### Join a room
+POST {{ baseUrl }}/rooms/{{room}}/join
+Authorization: Bearer {{token2}}
+
+### List room members
+GET {{ baseUrl }}/rooms/{{room}}/members
+Authorization: Bearer {{token2}}
+
+### Leave a room
+DELETE {{ baseUrl }}/rooms/{{room}}/leave
+Authorization: Bearer {{token2}}
+
+### Kick a member (room admin only)
+DELETE {{baseUrl}}/rooms/{{room}}/members/{{user2}}
+Authorization: Bearer {{token}}
