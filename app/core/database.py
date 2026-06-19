@@ -1,7 +1,8 @@
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, MappedColumn
+from sqlalchemy import MetaData
+from typing import AsyncGenerator
 from app.core.config import settings
-from typing import Generator, Any
 
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
@@ -15,26 +16,25 @@ class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
 
-engine = create_engine(
+engine = create_async_engine(
     settings.database_url,
     echo=True,
-    connect_args={"check_same_thread": False}
-    if settings.database_url.startswith("sqlite")
-    else {},
 )
 
-SessionLocal = sessionmaker(
+AsyncSessionLocal = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
     autocommit=False,
     autoflush=False,
-    bind=engine,
-    
+    # keeps data in memory after commit (access data yourself)
+    expire_on_commit=False,
 )
 
-def get_db() -> Generator[Session, Any, Any]:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
         
