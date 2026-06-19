@@ -5,7 +5,7 @@ from fastapi_cache.backends.inmemory import InMemoryBackend
 
 from app.core.config import settings
 from contextlib import asynccontextmanager
-from app.routers import auth, users
+from app.routers import auth, users, rooms
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -29,3 +29,5 @@ async def healthcheck():
 
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(rooms.router)
+
