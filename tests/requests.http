@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8000
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NjJkZjNjZC00MTU4LTQ0MjUtYjQzYy1jNDAwOGM0YWRlNzgiLCJleHAiOjE3ODE4OTk3MTJ9.dZU3FbFTlMxAtYzTn0cgH1WRY_sg5qCfZ3TESSNsR4M
-@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZDVjM2YzOC0zN2Y1LTQwMjUtYWUyMy1hYzAyNWQwMTExMWIiLCJleHAiOjE3ODE4OTk5Nzl9.fwLcPVdD85aFkKxo0Tijg4xJgMvJpJiSSBojwTEIUOs
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NjJkZjNjZC00MTU4LTQ0MjUtYjQzYy1jNDAwOGM0YWRlNzgiLCJleHAiOjE3ODQ1MDczMTZ9.xtXi41OyNUZk3i-WNIwQtNv8itfbWI8sdufGbmF0ruI
+@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZDVjM2YzOC0zN2Y1LTQwMjUtYWUyMy1hYzAyNWQwMTExMWIiLCJleHAiOjE3ODQ1MDczMzB9.Dzo-BlE_OOJoiozmuVHe4BGmgLrjUvg3IktMhkeOkqg
 @user2 = fd5c3f38-37f5-4025-ae23-ac025d01111b
 @room = 494ffe03-a371-45af-9be3-995bd29b81f7
 
@@ -56,6 +56,19 @@ Authorization: Bearer {{token}}
 {
   "bio": "Hello I am a dev"
 }
+
+### Upload my avatar
+POST {{baseUrl}}/users/me/avatar
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebAppBoundary
+
+------WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="avatar.jpg"
+Content-Type: image/jpeg
+
+< ./assets/avatar.jpg
+------WebAppBoundary--
+
 ### ======= Rooms ==========================================
 ### Create a room
 POST {{baseUrl}}/rooms
@@ -91,12 +104,64 @@ Authorization: Bearer {{token2}}
 
 ### List room members
 GET {{ baseUrl }}/rooms/{{room}}/members
-Authorization: Bearer {{token2}}
+Authorization: Bearer {{token}}
 
 ### Leave a room
 DELETE {{ baseUrl }}/rooms/{{room}}/leave
-Authorization: Bearer {{token2}}
+Authorization: Bearer {{token}}
 
 ### Kick a member (room admin only)
 DELETE {{baseUrl}}/rooms/{{room}}/members/{{user2}}
 Authorization: Bearer {{token}}
+
+### Upload room avatar
+POST {{baseUrl}}/rooms/{{room}}/avatar
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebAppBoundary
+
+------WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="room.jpg"
+Content-Type: image/jpeg
+
+< ./assets/banner.jpg
+------WebAppBoundary--
+
+### === Messages =======================================
+
+### Send a message
+# @name send_message
+POST {{baseUrl}}/rooms/{{room}}/messages
+Content-Type: application/json
+Authorization: Bearer {{token2}}
+
+{
+  "content": "Hello, this is a test message"
+}
+
+### Get message history
+GET {{baseUrl}}/rooms/{{room}}/messages
+Authorization: Bearer {{token}}
+
+### Get message history with limit
+GET {{baseUrl}}/rooms/{{room}}/messages?limit=10
+Authorization: Bearer {{token}}
+
+### Get message history before a cursor
+GET {{baseUrl}}/rooms/{{room}}/messages?before={{send_message.response.body.id}}
+Authorization: Bearer {{token}}
+
+### List room files
+GET {{baseUrl}}/rooms/{{room}}/files
+Authorization: Bearer {{token}}
+
+### Upload file into room
+POST {{baseUrl}}/rooms/{{room}}/files
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebAppBoundary
+
+------WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="room.jpg"
+Content-Type: image/jpeg
+
+< ./assets/message.jpg
+------WebAppBoundary--

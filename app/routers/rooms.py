@@ -132,9 +132,14 @@ async def join_room(
     result = await db.execute(select(Room).where(Room.id == room_id))
     room = result.scalar_one_or_none()
     if not room:
-        raise HTTPException(status_code=404, detail="Room not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Room not found"
+        )
     if room.is_private:
-        raise HTTPException(status_code=403, detail="This room is private — you need an invite")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="This room is private — you need an invite"
+        )
 
     result = await db.execute(
         select(RoomMember).where(
