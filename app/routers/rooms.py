@@ -3,12 +3,13 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.core.database import get_db
-from app.dependencies import get_current_user, require_room_admin
+from app.dependencies import get_current_user, require_room_admin, get_room_membership
 from app.models.room import Room
 from app.models.room_member import RoomMember, RoomRole
 from app.models.user import User
 from app.schemas.room import RoomCreate, RoomUpdate, RoomResponse, RoomMemberResponse
 from app.services.file_service import save_avatar
+from app.core.connection_manager import manager
 
 router = APIRouter(prefix="/rooms", tags=["rooms"])
 
@@ -224,3 +225,16 @@ async def kick_member(
 
     await db.delete(member)
     await db.commit()
+
+@router.get("/{room_id}/online")
+async def get_online_users(
+    room_id: str,
+    room: Room = Depends(get_room_membership)
+):
+    online_ids = manager.online_user_ids(room_id)
+    result  = {
+        "room_id": room_id, 
+        "online_user_ids": list(online_ids), 
+        "count": len(online_ids)
+    }
+    return result

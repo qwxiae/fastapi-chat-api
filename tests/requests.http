@@ -1,8 +1,11 @@
 @baseUrl = http://localhost:8000
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NjJkZjNjZC00MTU4LTQ0MjUtYjQzYy1jNDAwOGM0YWRlNzgiLCJleHAiOjE3ODQ1MDczMTZ9.xtXi41OyNUZk3i-WNIwQtNv8itfbWI8sdufGbmF0ruI
-@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZDVjM2YzOC0zN2Y1LTQwMjUtYWUyMy1hYzAyNWQwMTExMWIiLCJleHAiOjE3ODQ1MDczMzB9.Dzo-BlE_OOJoiozmuVHe4BGmgLrjUvg3IktMhkeOkqg
-@user2 = fd5c3f38-37f5-4025-ae23-ac025d01111b
+@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZDVjM2YzOC0zN2Y1LTQwMjUtYWUyMy1hYzAyNWQwMTExMWIiLCJleHAiOjE3ODQ1ODkwMzF9.FaK9MWPHxkcOhPZh_eP6Y2LAOxsSk9UBIvINY-WYFBI
 @room = 494ffe03-a371-45af-9be3-995bd29b81f7
+
+
+### Get healthcheck
+GET {{baseUrl}}/
 
 ### ======= Auth ===========================================
 ### Register
@@ -125,6 +128,11 @@ Content-Type: image/jpeg
 
 < ./assets/banner.jpg
 ------WebAppBoundary--
+
+### Who's online in this room
+GET {{baseUrl}}/rooms/{{room}}/online
+Authorization: Bearer {{token}}
+
 
 ### === Messages =======================================
 
