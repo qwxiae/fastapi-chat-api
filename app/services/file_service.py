@@ -3,8 +3,18 @@ import uuid
 from fastapi import HTTPException, UploadFile, status
 from app.core.config import settings
 from app.core.constants import ALLOWED_IMAGE_TYPES, ALLOWED_FILE_TYPES
+from dataclasses import dataclass
 
-def _save_file(contents: bytes, folder: str, original_filename: str | None) -> str:
+
+@dataclass
+class SavedFile:
+    url: str
+    filename: str
+    content_type: str
+    size_kb: int
+
+
+def _save_file(contents: bytes, folder: str, original_filename: str | None, content_type: str) -> SavedFile:
     """Save bytes to disk, return the public URL path"""
     ext = Path(original_filename).suffix.lstrip(".") if original_filename else "bin"
     filename = f"{uuid.uuid4()}.{ext}"
@@ -15,7 +25,12 @@ def _save_file(contents: bytes, folder: str, original_filename: str | None) -> s
     with open(file_path, "wb") as f:
         f.write(contents)
 
-    return f"/uploads/{folder}/{filename}"
+    return SavedFile(
+        url=f"/uploads/{folder}/{filename}",
+        filename=original_filename or filename,
+        content_type=content_type,
+        size_kb=len(contents) // 1024,
+    )
 
 async def _read_and_validate(
     file: UploadFile,
@@ -40,12 +55,12 @@ async def _read_and_validate(
     return contents 
 
 
-async def save_avatar(file: UploadFile) -> str:
+async def save_avatar(file: UploadFile) -> SavedFile:
     """Validate and save a user or room avatar. Returns public URL."""
     contents = await _read_and_validate(file, ALLOWED_IMAGE_TYPES)
-    return _save_file(contents, "avatars", file.filename)
+    return _save_file(contents, "avatars", file.filename, file.content_type)
 
-async def save_room_file(file: UploadFile) -> str:
+async def save_room_file(file: UploadFile) -> SavedFile:
     """Validate and save a file uploaded to a room.  Returns public URL. """
     contents = await _read_and_validate(file, ALLOWED_FILE_TYPES)
-    return _save_file(contents, "rooms", file.filename)
+    return _save_file(contents, "rooms", file.filename, file.content_type)

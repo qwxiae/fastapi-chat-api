@@ -47,7 +47,6 @@ async def create_room(
 
 @router.get("", response_model=list[RoomResponse])
 async def list_rooms(
-    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(select(Room).where(Room.is_private == False))
@@ -116,7 +115,9 @@ async def upload_room_avatar(
     if room.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Only the owner can set the room avatar")
 
-    room.avatar_url = await save_avatar(file)
+    result = await save_avatar(file)
+    room.avatar_url = result.url
+    
     await db.commit()
     await db.refresh(room)
     return room

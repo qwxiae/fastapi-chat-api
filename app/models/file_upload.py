@@ -13,5 +13,5 @@ class FileUpload(Base):
     file_type: Mapped[str] = mapped_column(String(100), nullable=False)
     file_size_kb: Mapped[int] = mapped_column(Integer, nullable=False)
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
-    room_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=True)
+    room_id: Mapped[str] = mapped_column(String(36), ForeignKey("rooms.id"), nullable=True)
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True), server_default=func.now())
