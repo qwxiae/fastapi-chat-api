@@ -9,9 +9,9 @@ parser.add_argument('--user', action="store", dest='user', default=1, type=int)
 args = parser.parse_args()
 
 user = args.user
-ROOM_ID = "494ffe03-a371-45af-9be3-995bd29b81f7"
-TOKEN1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NjJkZjNjZC00MTU4LTQ0MjUtYjQzYy1jNDAwOGM0YWRlNzgiLCJleHAiOjE3ODQ1NjgwODV9.vxlpeCSL6_Sdb5Frr_ToWbE1I-l2hYQlfTfM89kUTbk"
-TOKEN2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZDVjM2YzOC0zN2Y1LTQwMjUtYWUyMy1hYzAyNWQwMTExMWIiLCJleHAiOjE3ODQ1ODkwMzF9.FaK9MWPHxkcOhPZh_eP6Y2LAOxsSk9UBIvINY-WYFBI"
+ROOM_ID = "c94a0aa2-cafc-4b7e-98ea-adb6d692baf1"
+TOKEN1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNmRjYWRmOS0xY2RhLTQ2ZjUtYmZlMy0wM2NhNDZkMTg4N2QiLCJleHAiOjE3ODQ2NDc5NzB9.eRrIFbYCUxJvOc74OmqHqNnEAzDku4JArFaF0vceLs0"
+TOKEN2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMjk2NzdiZS1lODI4LTQzOGMtOTVkOS02NGNiNTI2YzJmMGYiLCJleHAiOjE3ODQ2NTE0MTl9.2Yqo8pEdX8QlppiCwcz3WCkb7izK3ozD5uH1Y_gvzHk"
 
 async def main():
     uri = f"ws://localhost:8000/ws/rooms/{ROOM_ID}"
@@ -41,6 +41,8 @@ async def main():
                     print(f"\n=> {data['username']} is typing...\n")
                 elif data["type"] == "message":
                     print(f"\n[{data['user_id'][:8]}] {data['content']}\n")
+                elif data["type"] == "file_shared":
+                    print(f"\n{data['filename']} shared by {data['user_id'][:8]} ({data['file_size_kb']}kb)\n")
                 else:
                     print(f"\n[RECEIVED] {data}\n")
 

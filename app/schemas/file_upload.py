@@ -6,7 +6,7 @@ class FileUploadResponse(BaseModel):
     id: str
     filename: str
     file_path: str
-    thumbnail_path: str
+    thumbnail_path: str | None
     file_type: str
     file_size_kb: int
     user_id: str

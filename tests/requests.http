@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:8000
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NjJkZjNjZC00MTU4LTQ0MjUtYjQzYy1jNDAwOGM0YWRlNzgiLCJleHAiOjE3ODQ1MDczMTZ9.xtXi41OyNUZk3i-WNIwQtNv8itfbWI8sdufGbmF0ruI
-@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmZDVjM2YzOC0zN2Y1LTQwMjUtYWUyMy1hYzAyNWQwMTExMWIiLCJleHAiOjE3ODQ1ODkwMzF9.FaK9MWPHxkcOhPZh_eP6Y2LAOxsSk9UBIvINY-WYFBI
-@room = 494ffe03-a371-45af-9be3-995bd29b81f7
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNmRjYWRmOS0xY2RhLTQ2ZjUtYmZlMy0wM2NhNDZkMTg4N2QiLCJleHAiOjE3ODQ2NDc5NzB9.eRrIFbYCUxJvOc74OmqHqNnEAzDku4JArFaF0vceLs0
+@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMjk2NzdiZS1lODI4LTQzOGMtOTVkOS02NGNiNTI2YzJmMGYiLCJleHAiOjE3ODQ2NTE0MTl9.2Yqo8pEdX8QlppiCwcz3WCkb7izK3ozD5uH1Y_gvzHk
+@room = c94a0aa2-cafc-4b7e-98ea-adb6d692baf1
 
 
 ### Get healthcheck
@@ -173,3 +173,19 @@ Content-Type: image/jpeg
 
 < ./assets/message.jpg
 ------WebAppBoundary--
+
+### Upload a file to a room
+POST {{baseUrl}}/rooms/{{room}}/files
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebAppBoundary
+
+------WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.jpg"
+Content-Type: image/jpeg
+
+< ./assets/test.jpg
+------WebAppBoundary--
+
+### List room files
+GET {{baseUrl}}/rooms/{{room}}/files
+Authorization: Bearer {{token}}

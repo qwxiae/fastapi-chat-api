@@ -10,7 +10,7 @@ def process_avatar(file_path: str) -> str:
     """
     image = Image.open(file_path)
     if image.mode not in ("RGB", "L"):
-        image.convert("RGB")
+        image = image.convert("RGB")
     
     image = ImageOps.fit(image, AVATAR_SIZE, Image.LANCZOS, centering=(0.5, 0.5))
     image.save(file_path)
@@ -23,12 +23,14 @@ def generate_thumbnail(file_path: str) -> str:
     Unlike avatars, this preserves aspect ratio.
     """
     from pathlib import Path
+    print(f"[DEBUG] Attempting to open: {file_path}")
     path = Path(file_path)
+    print(f"[DEBUG] File exists: {path.exists()}")
     thumb_path = path.with_stem(f"{path.stem}_thumb")
 
     image = Image.open(file_path)
-    if image.mode not in ("RGB", L):
-        image.convert ("RGB")
+    if image.mode not in ("RGB", "L"):
+        image = image.convert("RGB")
 
     image.thumbnail(THUMBNAIL_SIZE)
     image.save(thumb_path)

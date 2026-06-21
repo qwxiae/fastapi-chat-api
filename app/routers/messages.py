@@ -16,6 +16,10 @@ from app.schemas.file_upload import FileUploadResponse
 from app.services.file_service import save_room_file
 from pathlib import Path
 import uuid
+from app.core.constants import ALLOWED_IMAGE_TYPES
+from app.core.connection_manager import manager
+from app.tasks.image_tasks import generate_thumbnail
+
 
 router = APIRouter(prefix="/rooms", tags=["messages"])
 
@@ -95,6 +99,7 @@ async def upload_file(
         id=str(uuid.uuid4()),
         filename=saved.filename,
         file_path=saved.url,
+        thumbnail_path=None,
         file_type=saved.content_type,
         file_size_kb=saved.size_kb,
         user_id=current_user.id,
@@ -103,4 +108,27 @@ async def upload_file(
     db.add(file_upload)
     await db.commit()
     await db.refresh(file_upload)
+
+    if saved.content_type in ALLOWED_IMAGE_TYPES:
+        thumb_filename = Path(saved.path).stem + "_thumb" + Path(saved.path).suffix
+        predicted_thumb_url = f"/uploads/rooms/{thumb_filename}"
+        file_upload.thumbnail_path = predicted_thumb_url
+        await db.commit()
+        await db.refresh(file_upload)
+        generate_thumbnail.delay(saved.path)
+
+    await manager.broadcast(
+        room_id,
+        {
+            "type": "file_shared",
+            "id": file_upload.id,
+            "filename": file_upload.filename,
+            "file_path": file_upload.file_path,
+            "file_type": file_upload.file_type,
+            "file_size_kb": file_upload.file_size_kb,
+            "user_id": current_user.id,
+            "created_at": file_upload.created_at.isoformat(),
+        }
+    )
+
     return file_upload

@@ -1,3 +1,7 @@
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["."]
+
 [project]
 name = "web-app"
 version = "0.1.0"
