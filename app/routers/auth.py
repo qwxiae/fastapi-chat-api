@@ -10,7 +10,6 @@ from app.schemas.auth import TokenResponse
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     payload: UserRegister,
