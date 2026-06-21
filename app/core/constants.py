@@ -1,7 +1,7 @@
 # IMAGE UPLOADS
 UPLOAD_PATH                 ="app/uploads"
 MAX_UPLOAD_SIZE_MB          = 20
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 60*24*30
 
 ALLOWED_IMAGE_TYPES         = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 ALLOWED_FILE_TYPES          = {"application/pdf", "application/zip"} | ALLOWED_IMAGE_TYPES

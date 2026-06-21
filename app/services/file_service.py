@@ -9,6 +9,7 @@ from dataclasses import dataclass
 @dataclass
 class SavedFile:
     url: str
+    path: str
     filename: str
     content_type: str
     size_kb: int
@@ -21,12 +22,14 @@ def _save_file(contents: bytes, folder: str, original_filename: str | None, cont
     directory = Path(settings.upload_path) / folder
     directory.mkdir(parents=True, exist_ok=True)
     file_path = directory / filename
-
+    file_path.write_bytes(contents)
+    
     with open(file_path, "wb") as f:
         f.write(contents)
 
     return SavedFile(
         url=f"/uploads/{folder}/{filename}",
+        path=str(file_path),
         filename=original_filename or filename,
         content_type=content_type,
         size_kb=len(contents) // 1024,

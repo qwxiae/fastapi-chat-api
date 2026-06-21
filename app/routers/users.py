@@ -9,6 +9,7 @@ from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.user import UserResponse, UserUpdate
 from app.services.file_service import save_avatar
+from app.tasks.image_tasks import process_avatar
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -47,8 +48,12 @@ async def upload_avatar(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    result = await save_avatar(file)
-    current_user.avatar_url = result.url
+    saved = await save_avatar(file)
+    url = saved.url
+    current_user.avatar_url = url
     await db.commit()
     await db.refresh(current_user)
+
+    process_avatar.delay(saved.path)
+    
     return current_user

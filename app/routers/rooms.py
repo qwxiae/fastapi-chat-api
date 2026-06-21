@@ -10,6 +10,7 @@ from app.models.user import User
 from app.schemas.room import RoomCreate, RoomUpdate, RoomResponse, RoomMemberResponse
 from app.services.file_service import save_avatar
 from app.core.connection_manager import manager
+from app.tasks.image_tasks import process_avatar
 
 router = APIRouter(prefix="/rooms", tags=["rooms"])
 
@@ -116,11 +117,13 @@ async def upload_room_avatar(
     if room.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Only the owner can set the room avatar")
 
-    result = await save_avatar(file)
-    room.avatar_url = result.url
+    saved = await save_avatar(file)
+    room.avatar_url = saved.url
     
     await db.commit()
     await db.refresh(room)
+
+    process_avatar.delay(saved.path)
     return room
 
 

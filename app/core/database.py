@@ -3,6 +3,13 @@ from sqlalchemy.orm import DeclarativeBase, MappedColumn
 from sqlalchemy import MetaData
 from typing import AsyncGenerator
 from app.core.config import settings
+import logging
+
+# logging.basicConfig()
+# # queries only
+# logging.getLogger("sqlalchemy.engine.Engine").setLevel(logging.INFO)  
+# # silence pool noise
+# logging.getLogger("sqlalchemy.pool").setLevel(logging.WARNING)        
 
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
@@ -18,7 +25,6 @@ class Base(DeclarativeBase):
 
 engine = create_async_engine(
     settings.database_url,
-    echo=True,
 )
 
 AsyncSessionLocal = async_sessionmaker(
