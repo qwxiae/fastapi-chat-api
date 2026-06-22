@@ -1,18 +1,21 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
-from sqlalchemy.ext.asyncio import AsyncSession
+
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.connection_manager import manager
 from app.core.database import get_db
-from app.dependencies import get_current_user, require_room_admin, get_room_membership
+from app.dependencies import get_current_user, get_room_membership, require_room_admin
 from app.models.room import Room
 from app.models.room_member import RoomMember, RoomRole
 from app.models.user import User
-from app.schemas.room import RoomCreate, RoomUpdate, RoomResponse, RoomMemberResponse
+from app.schemas.room import RoomCreate, RoomMemberResponse, RoomResponse, RoomUpdate
 from app.services.file_service import save_avatar
-from app.core.connection_manager import manager
 from app.tasks.image_tasks import process_avatar
 
 router = APIRouter(prefix="/rooms", tags=["rooms"])
+
 
 @router.post("", response_model=RoomResponse, status_code=status.HTTP_201_CREATED)
 async def create_room(
@@ -20,12 +23,17 @@ async def create_room(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Room).where(Room.name == payload.name, Room.owner_id == current_user.id))
+    result = await db.execute(
+        select(Room).where(Room.name == payload.name, Room.owner_id == current_user.id)
+    )
     obj = result.scalar_one_or_none()
 
     if obj:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="You have already created a room with this name")
-    
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You have already created a room with this name",
+        )
+
     room = Room(
         id=str(uuid.uuid4()),
         name=payload.name,
@@ -36,7 +44,6 @@ async def create_room(
     db.add(room)
     await db.flush()
 
-
     member = RoomMember(
         user_id=current_user.id,
         room_id=room.id,
@@ -46,6 +53,7 @@ async def create_room(
     await db.commit()
     await db.refresh(room)
     return room
+
 
 @router.get("", response_model=list[RoomResponse])
 async def list_rooms(
@@ -66,7 +74,7 @@ async def get_room(
 
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
-    
+
     if room.is_private:
         member = await db.execute(
             select(RoomMember).where(
@@ -77,6 +85,7 @@ async def get_room(
         if not member.scalar_one_or_none():
             raise HTTPException(status_code=403, detail="This room is private")
     return room
+
 
 @router.patch("/{room_id}", response_model=RoomResponse)
 async def update_room(
@@ -90,7 +99,9 @@ async def update_room(
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
     if room.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Only the owner can update this room")
+        raise HTTPException(
+            status_code=403, detail="Only the owner can update this room"
+        )
 
     if payload.name is not None:
         room.name = payload.name
@@ -102,6 +113,7 @@ async def update_room(
     await db.commit()
     await db.refresh(room)
     return room
+
 
 @router.post("/{room_id}/avatar", response_model=RoomResponse)
 async def upload_room_avatar(
@@ -115,11 +127,13 @@ async def upload_room_avatar(
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
     if room.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Only the owner can set the room avatar")
+        raise HTTPException(
+            status_code=403, detail="Only the owner can set the room avatar"
+        )
 
     saved = await save_avatar(file)
     room.avatar_url = saved.url
-    
+
     await db.commit()
     await db.refresh(room)
 
@@ -141,8 +155,8 @@ async def join_room(
         )
     if room.is_private:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
-            detail="This room is private — you need an invite"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This room is private — you need an invite",
         )
 
     result = await db.execute(
@@ -164,6 +178,7 @@ async def join_room(
     await db.refresh(member)
     return member
 
+
 @router.delete("/{room_id}/leave", status_code=status.HTTP_204_NO_CONTENT)
 async def leave_room(
     room_id: str,
@@ -183,7 +198,10 @@ async def leave_room(
     result = await db.execute(select(Room).where(Room.id == room_id))
     room = result.scalar_one_or_none()
     if room and room.owner_id == current_user.id:
-        raise HTTPException(status_code=400, detail="Owner cannot leave — transfer ownership or delete the room")
+        raise HTTPException(
+            status_code=400,
+            detail="Owner cannot leave — transfer ownership or delete the room",
+        )
 
     await db.delete(member)
     await db.commit()
@@ -200,9 +218,7 @@ async def list_members(
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
 
-    result = await db.execute(
-        select(RoomMember).where(RoomMember.room_id == room_id)
-    )
+    result = await db.execute(select(RoomMember).where(RoomMember.room_id == room_id))
     return result.scalars().all()
 
 
@@ -229,15 +245,13 @@ async def kick_member(
     await db.delete(member)
     await db.commit()
 
+
 @router.get("/{room_id}/online")
-async def get_online_users(
-    room_id: str,
-    room: Room = Depends(get_room_membership)
-):
+async def get_online_users(room_id: str, room: Room = Depends(get_room_membership)):
     online_ids = manager.online_user_ids(room_id)
-    result  = {
-        "room_id": room_id, 
-        "online_user_ids": list(online_ids), 
-        "count": len(online_ids)
+    result = {
+        "room_id": room_id,
+        "online_user_ids": list(online_ids),
+        "count": len(online_ids),
     }
     return result

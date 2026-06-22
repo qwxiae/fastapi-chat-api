@@ -1,5 +1,6 @@
 from fastapi import WebSocket
 
+
 class ConnectionManager:
     def __init__(self):
         # room_id -> list of (websocket, user_id) currently connected
@@ -14,13 +15,16 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket, room_id: str):
         if room_id in self.active_connections:
             self.active_connections[room_id] = [
-                (ws, uid) for ws, uid in self.active_connections[room_id]
+                (ws, uid)
+                for ws, uid in self.active_connections[room_id]
                 if ws != websocket
             ]
             if not self.active_connections[room_id]:
                 del self.active_connections[room_id]
 
-    async def broadcast(self, room_id: str, message: dict, exclude: WebSocket | None = None):
+    async def broadcast(
+        self, room_id: str, message: dict, exclude: WebSocket | None = None
+    ):
         if room_id not in self.active_connections:
             return
         for ws, _ in self.active_connections[room_id]:

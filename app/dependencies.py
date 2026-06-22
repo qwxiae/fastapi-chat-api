@@ -1,18 +1,19 @@
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
+from dataclasses import dataclass
+
+from fastapi import Depends, HTTPException, Query, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.constants import MESSAGE_HISTORY
 from app.core.database import get_db
 from app.core.security import decode_access_token
-from app.models.user import User
-from app.models.room_member import RoomMember, RoomRole
 from app.models.room import Room
-from dataclasses import dataclass
-from fastapi import Query
-from app.core.constants import MESSAGE_HISTORY
-
+from app.models.room_member import RoomMember, RoomRole
+from app.models.user import User
 
 bearer_scheme = HTTPBearer()
+
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
@@ -91,13 +92,17 @@ async def get_room_membership(
 
     return room
 
+
 @dataclass
 class PaginationParams:
     before: str | None
-    limit: int 
+    limit: int
+
 
 async def get_pagination(
-    before: str | None = Query(default=None, description="Message ID to paginate before"),
+    before: str | None = Query(
+        default=None, description="Message ID to paginate before"
+    ),
     limit: int = Query(default=MESSAGE_HISTORY, le=100),
 ) -> PaginationParams:
     return PaginationParams(before=before, limit=limit)

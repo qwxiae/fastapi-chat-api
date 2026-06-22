@@ -1,17 +1,19 @@
 # tests/manual_ws_test.py
+import argparse
 import asyncio
 import json
+
 import websockets
-import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--user', action="store", dest='user', default=1, type=int)
+parser.add_argument("--user", action="store", dest="user", default=1, type=int)
 args = parser.parse_args()
 
 user = args.user
 ROOM_ID = "c94a0aa2-cafc-4b7e-98ea-adb6d692baf1"
 TOKEN1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNmRjYWRmOS0xY2RhLTQ2ZjUtYmZlMy0wM2NhNDZkMTg4N2QiLCJleHAiOjE3ODQ2NDc5NzB9.eRrIFbYCUxJvOc74OmqHqNnEAzDku4JArFaF0vceLs0"
 TOKEN2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMjk2NzdiZS1lODI4LTQzOGMtOTVkOS02NGNiNTI2YzJmMGYiLCJleHAiOjE3ODQ2NTE0MTl9.2Yqo8pEdX8QlppiCwcz3WCkb7izK3ozD5uH1Y_gvzHk"
+
 
 async def main():
     uri = f"ws://localhost:8000/ws/rooms/{ROOM_ID}"
@@ -42,7 +44,9 @@ async def main():
                 elif data["type"] == "message":
                     print(f"\n[{data['user_id'][:8]}] {data['content']}\n")
                 elif data["type"] == "file_shared":
-                    print(f"\n{data['filename']} shared by {data['user_id'][:8]} ({data['file_size_kb']}kb)\n")
+                    print(
+                        f"\n{data['filename']} shared by {data['user_id'][:8]} ({data['file_size_kb']}kb)\n"
+                    )
                 else:
                     print(f"\n[RECEIVED] {data}\n")
 

@@ -1,11 +1,15 @@
+import os
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
 
 from app.core.config import settings
-from contextlib import asynccontextmanager
-from app.routers import auth, users, rooms, messages, ws
+from app.routers import auth, messages, rooms, users, ws
+
+os.makedirs(settings.upload_path, exist_ok=True)
 
 
 @asynccontextmanager
@@ -13,20 +17,19 @@ async def lifespan(app: FastAPI):
     FastAPICache.init(InMemoryBackend(), prefix="chatapp-cache")
     yield
 
+
 app = FastAPI(
     title="ChatApp",
     lifespan=lifespan,
 )
 
-app.mount(
-    "/uploads", 
-    StaticFiles(directory=settings.upload_path), 
-    name="uploads"
-)
+app.mount("/uploads", StaticFiles(directory=settings.upload_path), name="uploads")
+
 
 @app.get("/")
 async def healthcheck():
     return {"message": "Hello world"}
+
 
 app.include_router(auth.router)
 app.include_router(users.router)

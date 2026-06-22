@@ -1,5 +1,7 @@
-from pydantic import BaseModel
 from datetime import datetime
+
+from pydantic import BaseModel
+
 
 class RoomCreate(BaseModel):
     name: str
@@ -12,6 +14,7 @@ class RoomUpdate(BaseModel):
     description: str | None = None
     is_private: bool | None = None
 
+
 class RoomResponse(BaseModel):
     id: str
     name: str
@@ -23,6 +26,7 @@ class RoomResponse(BaseModel):
 
     model_config = {"from_attributes": True}
 
+
 class RoomMemberResponse(BaseModel):
     user_id: str
     room_id: str
@@ -30,4 +34,3 @@ class RoomMemberResponse(BaseModel):
     joined_at: datetime
 
     model_config = {"from_attributes": True}
-    

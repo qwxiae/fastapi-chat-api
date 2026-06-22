@@ -1,17 +1,20 @@
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase, MappedColumn
-from sqlalchemy import MetaData
-from typing import AsyncGenerator
-from app.core.config import settings
 import logging
 import ssl
+from typing import AsyncGenerator
+
+from sqlalchemy import MetaData
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, MappedColumn
+
+from app.core.config import settings
+
 ssl_context = ssl.create_default_context()
 
 # logging.basicConfig()
 # # queries only
-# logging.getLogger("sqlalchemy.engine.Engine").setLevel(logging.INFO)  
+# logging.getLogger("sqlalchemy.engine.Engine").setLevel(logging.INFO)
 # # silence pool noise
-# logging.getLogger("sqlalchemy.pool").setLevel(logging.WARNING)        
+# logging.getLogger("sqlalchemy.pool").setLevel(logging.WARNING)
 
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
@@ -21,14 +24,12 @@ NAMING_CONVENTION = {
     "pk": "pk_%(table_name)s",
 }
 
+
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
 
-engine = create_async_engine(
-    settings.database_url,
-    connect_args={"ssl": ssl_context}
-)
+engine = create_async_engine(settings.database_url, connect_args={"ssl": ssl_context})
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine,
@@ -39,6 +40,7 @@ AsyncSessionLocal = async_sessionmaker(
     expire_on_commit=False,
 )
 
+
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         try:
@@ -46,4 +48,3 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         except Exception:
             await session.rollback()
             raise
-        
