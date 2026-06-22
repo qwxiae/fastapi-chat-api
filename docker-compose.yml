@@ -20,13 +20,12 @@ services:
     image: redis:7
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "6380:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 5
-
   app:
     build: .
     restart: unless-stopped
@@ -38,13 +37,13 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+      - /app/.venv          # anonymous volume — shadows the mounted .venv from Windows
       - uploads_data:/app/app/uploads
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: uv run fastapi dev app/main.py --host 0.0.0.0
 
   worker:
     build: .
@@ -55,6 +54,7 @@ services:
       REDIS_URL: redis://redis:6379/0
     volumes:
       - .:/app
+      - /app/.venv          # same fix here
       - uploads_data:/app/app/uploads
     depends_on:
       db:
