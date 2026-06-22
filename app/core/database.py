@@ -4,6 +4,8 @@ from sqlalchemy import MetaData
 from typing import AsyncGenerator
 from app.core.config import settings
 import logging
+import ssl
+ssl_context = ssl.create_default_context()
 
 # logging.basicConfig()
 # # queries only
@@ -25,6 +27,7 @@ class Base(DeclarativeBase):
 
 engine = create_async_engine(
     settings.database_url,
+    connect_args={"ssl": ssl_context}
 )
 
 AsyncSessionLocal = async_sessionmaker(
